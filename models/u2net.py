@@ -457,6 +457,8 @@ class U2NETP(nn.Module):
         self.side6 = nn.Conv2d(64,out_ch,3,padding=1)
 
         self.outconv = nn.Conv2d(6*out_ch,out_ch,1)
+        
+        self.tan = nn.Tanh()
 
     def forward(self,x):
 
