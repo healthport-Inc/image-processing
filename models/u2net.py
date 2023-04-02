@@ -20,7 +20,7 @@ class REBNCONV(nn.Module):
 ## upsample tensor 'src' to have the same spatial size with tensor 'tar'
 def _upsample_like(src,tar):
 
-    src = F.upsample(src,size=tar.shape[2:],mode='bilinear')
+    src = nn.functional.interpolate(src,size=tar.shape[2:],mode='bilinear')
 
     return src
 
@@ -58,6 +58,8 @@ class RSU7(nn.Module):#UNet07DRES(nn.Module):
         self.rebnconv3d = REBNCONV(mid_ch*2,mid_ch,dirate=1)
         self.rebnconv2d = REBNCONV(mid_ch*2,mid_ch,dirate=1)
         self.rebnconv1d = REBNCONV(mid_ch*2,out_ch,dirate=1)
+
+        self.skip_add_relu = nn.quantized.FloatFunctional()
 
     def forward(self,x):
 
@@ -100,7 +102,7 @@ class RSU7(nn.Module):#UNet07DRES(nn.Module):
 
         hx1d = self.rebnconv1d(torch.cat((hx2dup,hx1),1))
 
-        return hx1d + hxin
+        return self.skip_add_relu.add(hx1d, hxin)
 
 ### RSU-6 ###
 class RSU6(nn.Module):#UNet06DRES(nn.Module):
@@ -132,6 +134,9 @@ class RSU6(nn.Module):#UNet06DRES(nn.Module):
         self.rebnconv2d = REBNCONV(mid_ch*2,mid_ch,dirate=1)
         self.rebnconv1d = REBNCONV(mid_ch*2,out_ch,dirate=1)
 
+        self.skip_add_relu = nn.quantized.FloatFunctional()
+
+        
     def forward(self,x):
 
         hx = x
@@ -169,7 +174,7 @@ class RSU6(nn.Module):#UNet06DRES(nn.Module):
 
         hx1d = self.rebnconv1d(torch.cat((hx2dup,hx1),1))
 
-        return hx1d + hxin
+        return self.skip_add_relu.add(hx1d, hxin)
 
 ### RSU-5 ###
 class RSU5(nn.Module):#UNet05DRES(nn.Module):
@@ -196,6 +201,8 @@ class RSU5(nn.Module):#UNet05DRES(nn.Module):
         self.rebnconv3d = REBNCONV(mid_ch*2,mid_ch,dirate=1)
         self.rebnconv2d = REBNCONV(mid_ch*2,mid_ch,dirate=1)
         self.rebnconv1d = REBNCONV(mid_ch*2,out_ch,dirate=1)
+        
+        self.skip_add_relu = nn.quantized.FloatFunctional()
 
     def forward(self,x):
 
@@ -227,7 +234,7 @@ class RSU5(nn.Module):#UNet05DRES(nn.Module):
 
         hx1d = self.rebnconv1d(torch.cat((hx2dup,hx1),1))
 
-        return hx1d + hxin
+        return self.skip_add_relu.add(hx1d, hxin)
 
 ### RSU-4 ###
 class RSU4(nn.Module):#UNet04DRES(nn.Module):
@@ -250,6 +257,8 @@ class RSU4(nn.Module):#UNet04DRES(nn.Module):
         self.rebnconv3d = REBNCONV(mid_ch*2,mid_ch,dirate=1)
         self.rebnconv2d = REBNCONV(mid_ch*2,mid_ch,dirate=1)
         self.rebnconv1d = REBNCONV(mid_ch*2,out_ch,dirate=1)
+        
+        self.skip_add_relu = nn.quantized.FloatFunctional()
 
     def forward(self,x):
 
@@ -275,7 +284,7 @@ class RSU4(nn.Module):#UNet04DRES(nn.Module):
 
         hx1d = self.rebnconv1d(torch.cat((hx2dup,hx1),1))
 
-        return hx1d + hxin
+        return self.skip_add_relu.add(hx1d, hxin)
 
 ### RSU-4F ###
 class RSU4F(nn.Module):#UNet04FRES(nn.Module):
@@ -294,6 +303,8 @@ class RSU4F(nn.Module):#UNet04FRES(nn.Module):
         self.rebnconv3d = REBNCONV(mid_ch*2,mid_ch,dirate=4)
         self.rebnconv2d = REBNCONV(mid_ch*2,mid_ch,dirate=2)
         self.rebnconv1d = REBNCONV(mid_ch*2,out_ch,dirate=1)
+        
+        self.skip_add_relu = nn.quantized.FloatFunctional()
 
     def forward(self,x):
 
@@ -311,7 +322,7 @@ class RSU4F(nn.Module):#UNet04FRES(nn.Module):
         hx2d = self.rebnconv2d(torch.cat((hx3d,hx2),1))
         hx1d = self.rebnconv1d(torch.cat((hx2d,hx1),1))
 
-        return hx1d + hxin
+        return self.skip_add_relu.add(hx1d, hxin)
 
 
 ##### U^2-Net ####
@@ -458,7 +469,7 @@ class U2NETP(nn.Module):
 
         self.outconv = nn.Conv2d(6*out_ch,out_ch,1)
         
-        self.tan = nn.Tanh()
+        #self.tan = nn.Tanh()
 
     def forward(self,x):
 
@@ -524,4 +535,4 @@ class U2NETP(nn.Module):
 
         d0 = self.outconv(torch.cat((d1,d2,d3,d4,d5,d6),1))
 
-        return F.sigmoid(d0), F.sigmoid(d1), F.sigmoid(d2), F.sigmoid(d3), F.sigmoid(d4), F.sigmoid(d5), F.sigmoid(d6)
+        return torch.sigmoid(d0), torch.sigmoid(d1), torch.sigmoid(d2), torch.sigmoid(d3), torch.sigmoid(d4), torch.sigmoid(d5), torch.sigmoid(d6)
