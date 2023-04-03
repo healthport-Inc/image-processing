@@ -4,7 +4,7 @@ import cv2
 import numpy as np
 from PIL import Image, ImageOps
 import matplotlib.pyplot as plt
-import os    
+import os
 os.environ['KMP_DUPLICATE_LIB_OK'] = 'True'
 
 def biggest_contour(contours, min_area):
