@@ -128,7 +128,7 @@ def main(args):
 
 
     ####################################
-    ##### 2. Preprocess Segment ########
+    ### 2. Preprocess Illumination #####
     ####################################
 
     warped_im = Image.fromarray(warped)
@@ -177,5 +177,5 @@ if __name__ == "__main__":
     parser.add_argument('--path_to_save_segmented_image', type=str, default='./output_segmented.jpg', help='path to save segmented image')
     parser.add_argument('--path_to_save_corrected_image', type=str, default='./output_test.jpg', help='path to save corrected image')
     
-    args = parser.parse_args()    
+    args = parser.parse_args()
     main(args)
