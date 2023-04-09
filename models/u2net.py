@@ -469,7 +469,10 @@ class U2NETP(nn.Module):
 
         self.outconv = nn.Conv2d(6*out_ch,out_ch,1)
         
-        #self.tan = nn.Tanh()
+        if out_ch == 1:
+            self.output_activation = nn.Sigmoid()
+        else:
+            self.output_activation = nn.Tanh()
 
     def forward(self,x):
 
@@ -535,4 +538,4 @@ class U2NETP(nn.Module):
 
         d0 = self.outconv(torch.cat((d1,d2,d3,d4,d5,d6),1))
 
-        return torch.sigmoid(d0), torch.sigmoid(d1), torch.sigmoid(d2), torch.sigmoid(d3), torch.sigmoid(d4), torch.sigmoid(d5), torch.sigmoid(d6)
+        return self.output_activation(d0)
