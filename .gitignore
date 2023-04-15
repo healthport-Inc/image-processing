@@ -8,3 +8,4 @@ core
 scripts
 .ipynb_checkpoints
 __pycache__
+data
